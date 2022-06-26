@@ -1,4 +1,3 @@
-
 using System;
 using System.Text.RegularExpressions;
 using TMPro;
@@ -11,23 +10,21 @@ public class AlarmTimeController : IOnController, IOnUpdate, IDisposable
     private bool _setAlarm;
     private bool _setPmAm;
 
-    private Transform _hourAlarm;
-    private Transform _minuteAlarm;
+    private readonly Transform _hourAlarm;
+    private readonly Transform _minuteAlarm;
     
-    private Button _buttonShowAlarm;
-    private Button _buttonSetAlarm;
-    private Button _buttonSetPmAm;
+    private readonly Button _buttonShowAlarm;
+    private readonly Button _buttonSetAlarm;
+    private readonly Button _buttonSetPmAm;
     
-    private TMP_Text _hourAlarmText;
-    private TMP_Text _minuteAlarmText;
-    private TMP_Text _alarmStatus;
-    private TMP_InputField _inputField;
-    private TimeController _timeController;
+    private readonly TMP_Text _hourAlarmText;
+    private readonly TMP_Text _minuteAlarmText;
+    private readonly TMP_Text _alarmStatus;
+    private readonly TMP_InputField _inputField;
+    private readonly TimeController _timeController;
     
     private int _hour;
     private int _minute;
-    private int i = 0;
-    private int j = 0;
 
     public AlarmTimeController(Button buttonShowAlarm, Transform hourAlarm, Transform minuteAlarm,
         TMP_Text hourAlarmText, TMP_Text minuteAlarmText, TimeController timeController, Button buttonSetPmAm,
@@ -44,26 +41,33 @@ public class AlarmTimeController : IOnController, IOnUpdate, IDisposable
         _buttonSetPmAm = buttonSetPmAm;
         _inputField = inputField;
         _buttonShowAlarm.onClick.AddListener(SetActiveAlarmInterface);
-        _buttonSetAlarm.onClick.AddListener(SetAllarm);
-        _buttonSetPmAm.onClick.AddListener(SetPmAm);
-        _inputField.onDeselect.AddListener((num => { CheckSettingAlarm(num); }) );
+        _buttonSetAlarm.onClick.AddListener(() =>
+        {
+            _setAlarm = SetAlarmStaitment.SetAlarm(_alarmStatus, _buttonSetAlarm.GetComponentInChildren<TMP_Text>());
+        });
+        _buttonSetPmAm.onClick.AddListener( () =>
+        {
+            _setPmAm = SetAmPm.ChangePmAm(_buttonSetPmAm.GetComponentInChildren<TMP_Text>());
+        });
+        _inputField.onDeselect.AddListener(CheckSettingAlarm);
+        
     }
 
-    private void CheckSettingAlarm(string num)
+    private void CheckSettingAlarm(string timeNum)
     {
         Regex myReg = new Regex(@"\d{2}:\d{2}");
-        if (myReg.IsMatch(num))
+        if (myReg.IsMatch(timeNum))
         {
-            string[] alarm = num.Split(':');
+            string[] alarm = timeNum.Split(':');
             for (int k = 0; k < alarm.Length; k++)
             {
-                var number = int.Parse(alarm[k]);
+                int number = int.Parse(alarm[k]);
                 if (number <= 24 && k == 0)
                 {
                     _hourAlarm.rotation = Quaternion.Euler(0f, 0f, -number * 30f);
-                    if (number > 12)
+                    if (number > 12 && !_setPmAm)
                     {
-                        SetPmAm();
+                        _setPmAm = SetAmPm.ChangePmAm(_buttonSetPmAm.GetComponentInChildren<TMP_Text>());
                     }
 
                     if (number == 24)
@@ -91,18 +95,13 @@ public class AlarmTimeController : IOnController, IOnUpdate, IDisposable
         {
             _inputField.text = "Wrong format, use format 15:20";
         }
+
+        _inputField.text = null;
     }
     private void SetActiveAlarmInterface()
     {
         
-        if (!_flag)
-        {
-            _flag = true;
-        }
-        else
-        {
-            _flag = false;
-        }
+        _flag = !_flag;
         _hourAlarm.gameObject.SetActive(_flag);
         _minuteAlarm.gameObject.SetActive(_flag);
         _hourAlarmText.gameObject.SetActive(_flag);
@@ -112,40 +111,7 @@ public class AlarmTimeController : IOnController, IOnUpdate, IDisposable
         _inputField.gameObject.SetActive(_flag);
         
     }
-
-    private void SetAllarm()
-    {
-        if (i==0)
-        {
-            _setAlarm = true;
-            _alarmStatus.text = "Alarm set";
-            _buttonSetAlarm.GetComponentInChildren<TMP_Text>().text = "Alarm Cancel";
-            i++;
-        }
-        else
-        {
-            _setAlarm = false;
-            _alarmStatus.text = "Alarm cancel";
-            _buttonSetAlarm.GetComponentInChildren<TMP_Text>().text = "Alarm Set";
-            i = 0;
-        }
-    }
-
-    private void SetPmAm()
-    {
-        if (j==0)
-        {
-            _setPmAm = true;
-            _buttonSetPmAm.GetComponentInChildren<TMP_Text>().text = "PM";
-            j++;
-        }
-        else
-        {
-            _setPmAm = false;
-            _buttonSetPmAm.GetComponentInChildren<TMP_Text>().text = "AM";
-            j = 0;
-        }
-    }
+    
     public void OnUpdate(float deltaTime)
     {
         _hour = (int)Mathf.Round(12 - _hourAlarm.rotation.eulerAngles.z / 30f);
@@ -158,12 +124,10 @@ public class AlarmTimeController : IOnController, IOnUpdate, IDisposable
         {
             _hour = 0;
         }
-
         if (_minute == 60)
         {
             _minute = 0;
         }
-
 
         _hourAlarmText.text = _hour.ToString("D2") + ':';
         _minuteAlarmText.text = _minute.ToString("D2");
@@ -172,8 +136,6 @@ public class AlarmTimeController : IOnController, IOnUpdate, IDisposable
         {
             Debug.Log("Дилиньк");
         }
-
-        
     }
     
     public void Dispose()
@@ -181,5 +143,6 @@ public class AlarmTimeController : IOnController, IOnUpdate, IDisposable
         _buttonShowAlarm.onClick.RemoveAllListeners();
         _buttonSetAlarm.onClick.RemoveAllListeners();
         _buttonSetPmAm.onClick.RemoveAllListeners();
+        _inputField.onDeselect.RemoveAllListeners();
     }
 }

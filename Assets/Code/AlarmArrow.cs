@@ -4,11 +4,10 @@ using UnityEngine;
 
 public class AlarmArrow : MonoBehaviour
 {
-
-    private const string _minuteName = "Minute";
+    private const string MinuteName = "Minute";
     private Transform _parentTransform;
-    private float hour;
-    private float minute;
+    private float _hour;
+    private float _minute;
     private void OnMouseDrag()
     {
         _parentTransform = transform.parent;
@@ -19,23 +18,23 @@ public class AlarmArrow : MonoBehaviour
 
     private void OnMouseUp()
     {
-        if (transform.parent.CompareTag(_minuteName))
+        if (transform.parent.CompareTag(MinuteName))
         {
-            minute = Mathf.Round(60 - _parentTransform.rotation.eulerAngles.z / 6f);
-           if (minute > 60)
+            _minute = Mathf.Round(60 - _parentTransform.rotation.eulerAngles.z / 6f);
+           if (_minute > 60)
             { 
-                minute = 0;
+                _minute = 0;
             }
-            _parentTransform.rotation = Quaternion.Euler(0f,0f,-minute*6f);
+            _parentTransform.rotation = Quaternion.Euler(0f,0f,-_minute*6f);
         }
         else
         {
-            hour = Mathf.Round(12 - _parentTransform.rotation.eulerAngles.z / 30f);
-            if (hour >= 12)
+            _hour = Mathf.Round(12 - _parentTransform.rotation.eulerAngles.z / 30f);
+            if (_hour >= 12)
             { 
-                hour = 0;
+                _hour = 0;
             }
-            _parentTransform.rotation = Quaternion.Euler(0f,0f,-hour*30f);
+            _parentTransform.rotation = Quaternion.Euler(0f,0f,-_hour*30f);
         }
     }
 }

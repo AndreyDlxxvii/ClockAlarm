@@ -5,7 +5,7 @@ public delegate void EndTimer();
 
 public class MyCoroutine
 {
-   public event EndTimer End;
+    public event EndTimer End;
     private Coroutine _coroutine;
     public void StartMyCoroutine(float i)
     {

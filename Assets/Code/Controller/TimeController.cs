@@ -7,17 +7,17 @@ public class TimeController : IOnController, IOnUpdate, IDisposable
 {
     public int[] Time => _time;
 
-    private Transform _hour;
-    private Transform _minute;
-    private Transform _second;
-    private TMP_Text _timeText;
-    private GetTimeFromServer _getTimeFromServer;
+    private readonly Transform _hour;
+    private readonly Transform _minute;
+    private readonly Transform _second;
+    private readonly TMP_Text _timeText;
+    private readonly GetTimeFromServer _getTimeFromServer;
 
     private int[] _time;
     private string _timeString;
-    private MyCoroutine _coroutine;
+    private readonly MyCoroutine _coroutine;
     private bool _flag = true;
-    private Button _showAlarm;
+    private readonly Button _showAlarm;
     public TimeController(GetTimeFromServer getTimeFromServer, Button buttonShowAlarm, Transform hour, Transform minute,
         Transform second, TMP_Text tmpText)
     {
@@ -89,12 +89,9 @@ public class TimeController : IOnController, IOnUpdate, IDisposable
         float ortSize = Screen.width * ratio / 200f;
         Camera.main.orthographicSize = ortSize;
     }
-    
-    
-
     public void Dispose()
     {
-        _coroutine.End -= () => TimerCount();
+        _coroutine.End -= TimerCount;
         _coroutine.StopMyCoroutine();
         _showAlarm.onClick.RemoveAllListeners();
     }

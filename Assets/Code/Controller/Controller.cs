@@ -2,13 +2,11 @@ using System.Collections.Generic;
 
 public class Controller
 {
-    public const string startMethod = "OnStart";
-    public const string updateMethod = "OnUpdate";
-    public const string fixedUpdateMethod = "OnFixedUpdate";
-    public const string lateUpdate = "OnLateUpdate";
-    
-    private List<IOnStart> _onStarts = new List<IOnStart>();
-    private List<IOnUpdate> _onUpdates = new List<IOnUpdate>();
+    private const string StartMethod = "OnStart";
+    private const string UpdateMethod = "OnUpdate";
+
+    private readonly List<IOnStart> _onStarts = new List<IOnStart>();
+    private readonly List<IOnUpdate> _onUpdates = new List<IOnUpdate>();
     
     public Controller Add(IOnController controller)
     {
@@ -28,7 +26,7 @@ public class Controller
     {
         foreach (var ell in _onStarts)
         {
-            if (ell.HasMethod(startMethod))
+            if (ell.HasMethod(StartMethod))
             {
                 ell.OnStart();
             }
@@ -39,7 +37,7 @@ public class Controller
     {
         foreach (var ell in _onUpdates)
         {
-            if (ell.HasMethod(updateMethod))
+            if (ell.HasMethod(UpdateMethod))
             {
                 ell.OnUpdate(deltaTime);
             }
