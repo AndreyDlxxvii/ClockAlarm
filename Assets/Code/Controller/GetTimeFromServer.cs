@@ -46,4 +46,3 @@ public class GetTimeFromServer
         return _dateTime;
     }
 }
-

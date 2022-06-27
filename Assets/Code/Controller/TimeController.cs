@@ -38,7 +38,7 @@ public class TimeController : IOnController, IOnUpdate, IDisposable
         TimerCount();
         _coroutine = new MyCoroutine();
         _coroutine.StartMyCoroutine(1f);
-        _coroutine.End += () => TimerCount();
+        _coroutine.End += TimerCount;
         
         _showAlarm.onClick.AddListener(SetActiveArrows);
 

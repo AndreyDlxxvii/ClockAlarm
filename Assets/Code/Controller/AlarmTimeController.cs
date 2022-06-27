@@ -16,19 +16,22 @@ public class AlarmTimeController : IOnController, IOnUpdate, IDisposable
     private readonly Button _buttonShowAlarm;
     private readonly Button _buttonSetAlarm;
     private readonly Button _buttonSetPmAm;
+    private readonly Button _buttonStopAlarm;
     
     private readonly TMP_Text _alarmText;
     private readonly TMP_Text _alarmStatus;
     private readonly TMP_InputField _inputField;
     private readonly TimeController _timeController;
+    private AudioSource _audioSource;
     
     private int _hour;
     private int _minute;
 
     public AlarmTimeController(Button buttonShowAlarm, Transform hourAlarm, Transform minuteAlarm,
         TMP_Text alarmText, TimeController timeController, Button buttonSetPmAm,
-        Button buttonSetAlarm, TMP_InputField inputField, TMP_Text alarmStatus)
+        Button buttonSetAlarm, TMP_InputField inputField, TMP_Text alarmStatus, Button buttonStopAlarm)
     {
+        _audioSource = Camera.main.GetComponent<AudioSource>();
         _alarmStatus = alarmStatus;
         _hourAlarm = hourAlarm;
         _minuteAlarm = minuteAlarm;
@@ -38,9 +41,11 @@ public class AlarmTimeController : IOnController, IOnUpdate, IDisposable
         _buttonSetAlarm = buttonSetAlarm;
         _buttonSetPmAm = buttonSetPmAm;
         _inputField = inputField;
+        _buttonStopAlarm = buttonStopAlarm;
         _buttonShowAlarm.onClick.AddListener(SetActiveAlarmInterface);
         _buttonSetAlarm.onClick.AddListener(() =>
         {
+            _buttonStopAlarm.gameObject.SetActive(true);
             _setAlarm = SetAlarmStaitment.SetAlarm(_alarmStatus, _buttonSetAlarm.GetComponentInChildren<TMP_Text>());
         });
         _buttonSetPmAm.onClick.AddListener( () =>
@@ -48,7 +53,11 @@ public class AlarmTimeController : IOnController, IOnUpdate, IDisposable
             _setPmAm = SetAmPm.ChangePmAm(_buttonSetPmAm.GetComponentInChildren<TMP_Text>());
         });
         _inputField.onDeselect.AddListener(CheckSettingAlarm);
-        
+        _buttonStopAlarm.onClick.AddListener(() =>
+        {
+            _audioSource.Stop();
+            _buttonStopAlarm.gameObject.SetActive(false);
+        });
     }
 
     private void CheckSettingAlarm(string timeNum)
@@ -128,10 +137,8 @@ public class AlarmTimeController : IOnController, IOnUpdate, IDisposable
 
         _alarmText.text = $"{_hour:d2} : {_minute:d2}";
        
-
         if (!_setAlarm || _timeController.HourInt != _hour || _timeController.MinuteInt != _minute) return;
-        Camera.main.GetComponent<AudioSource>().Play();
-        Debug.Log("Дилиньк");
+        _audioSource.Play();
     }
     
     public void Dispose()

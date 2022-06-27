@@ -12,6 +12,7 @@ public class Main : MonoBehaviour
     [SerializeField] private Button _buttonShowAlarm;
     [SerializeField] private Button _buttonSetAlarm;
     [SerializeField] private Button _buttonSetPmAm;
+    [SerializeField] private Button _buttonStopAlarm;
     
     [SerializeField] private Transform _hour;
     [SerializeField] private Transform _minute;
@@ -27,7 +28,7 @@ public class Main : MonoBehaviour
         _controllers = new Controller();
         new GameInit(_controllers, _timeText, _buttonShowAlarm, _hour, _minute, _second,
             _hourAlarm, _minuteAlarm, _alarmText, _buttonSetAlarm, 
-            _buttonSetPmAm, _inputField, _alarmStatus);
+            _buttonSetPmAm, _inputField, _alarmStatus, _buttonStopAlarm);
         _controllers.OnStart();
     }
 
