@@ -1,39 +1,49 @@
 using System;
 using System.Globalization;
+using System.IO;
 using System.Net;
+using System.Net.Sockets;
+using UnityEngine;
 
 public class GetTimeFromServer
 {
     private TimeSpan _dateTime;
+    private int _count = 0;
 
-    private string[] _servers =
-    {
-        "http://www.ya.ru",
-        "http://www.google.com",
-        "http://www.rambler.ru",
-        "http://www.rbc.ru"
+    private readonly string[] _servers = {
+    "time-c.nist.gov",
+    "time-d.nist.gov",
+    "nist-time-server.eoni.com",
+    "nist-time-server.eoni.com"
     };
 
     public TimeSpan TryGetTimeFromServer()
     {
-        foreach (var ell in _servers)
+        foreach (var server in _servers)
         {
             try
             {
-                using var response = WebRequest.Create(ell).GetResponse();
-                var time = DateTime.ParseExact(response.Headers["date"],
-                    "ddd, dd MMM yyyy HH:mm:ss 'GMT'",
-                    CultureInfo.InvariantCulture.DateTimeFormat,
-                    DateTimeStyles.AssumeUniversal);
-                _dateTime = time - time.Date;
+                _count++;
+                var client = new TcpClient(server, 13);
+                var streamReader = new StreamReader(client.GetStream());
+                var response = streamReader.ReadToEnd();
+                var utcDateTimeString = response.Substring(16, 8);
+                var dateTime = DateTime.ParseExact(utcDateTimeString, "HH:mm:ss",
+                    CultureInfo.InvariantCulture.DateTimeFormat, DateTimeStyles.AssumeUniversal);
+                _dateTime = dateTime - dateTime.Date;
+                var t = DateTime.Now - DateTime.Now.Date;
                 return _dateTime;
             }
             catch
             {
-                // ignored
+                if (_count >= _servers.Length)
+                {
+                    _dateTime = DateTime.Now.TimeOfDay;
+                    return _dateTime;
+                }
             }
         }
-
         return _dateTime;
     }
 }
+

@@ -17,8 +17,7 @@ public class AlarmTimeController : IOnController, IOnUpdate, IDisposable
     private readonly Button _buttonSetAlarm;
     private readonly Button _buttonSetPmAm;
     
-    private readonly TMP_Text _hourAlarmText;
-    private readonly TMP_Text _minuteAlarmText;
+    private readonly TMP_Text _alarmText;
     private readonly TMP_Text _alarmStatus;
     private readonly TMP_InputField _inputField;
     private readonly TimeController _timeController;
@@ -27,15 +26,14 @@ public class AlarmTimeController : IOnController, IOnUpdate, IDisposable
     private int _minute;
 
     public AlarmTimeController(Button buttonShowAlarm, Transform hourAlarm, Transform minuteAlarm,
-        TMP_Text hourAlarmText, TMP_Text minuteAlarmText, TimeController timeController, Button buttonSetPmAm,
+        TMP_Text alarmText, TimeController timeController, Button buttonSetPmAm,
         Button buttonSetAlarm, TMP_InputField inputField, TMP_Text alarmStatus)
     {
         _alarmStatus = alarmStatus;
         _hourAlarm = hourAlarm;
         _minuteAlarm = minuteAlarm;
         _buttonShowAlarm = buttonShowAlarm;
-        _hourAlarmText = hourAlarmText;
-        _minuteAlarmText = minuteAlarmText;
+        _alarmText = alarmText;
         _timeController = timeController;
         _buttonSetAlarm = buttonSetAlarm;
         _buttonSetPmAm = buttonSetPmAm;
@@ -72,7 +70,7 @@ public class AlarmTimeController : IOnController, IOnUpdate, IDisposable
 
                     if (number == 24)
                     {
-                        _hour = 0;
+                        _hour = 12;
                     }
                 }
                 else if (number <= 60 && k ==1)
@@ -85,7 +83,7 @@ public class AlarmTimeController : IOnController, IOnUpdate, IDisposable
                 }
                 else
                 {
-                    _inputField.text = "Wrong time use"; 
+                    _alarmStatus.text = "Wrong time use"; 
                 }
             }
 
@@ -93,7 +91,7 @@ public class AlarmTimeController : IOnController, IOnUpdate, IDisposable
         }
         else
         {
-            _inputField.text = "Wrong format, use format 15:20";
+            _alarmStatus.text = "Wrong format, use 15:20";
         }
 
         _inputField.text = null;
@@ -104,8 +102,7 @@ public class AlarmTimeController : IOnController, IOnUpdate, IDisposable
         _flag = !_flag;
         _hourAlarm.gameObject.SetActive(_flag);
         _minuteAlarm.gameObject.SetActive(_flag);
-        _hourAlarmText.gameObject.SetActive(_flag);
-        _minuteAlarmText.gameObject.SetActive(_flag);
+        _alarmText.gameObject.SetActive(_flag);
         _buttonSetAlarm.gameObject.SetActive(_flag);
         _buttonSetPmAm.gameObject.SetActive(_flag);
         _inputField.gameObject.SetActive(_flag);
@@ -120,7 +117,7 @@ public class AlarmTimeController : IOnController, IOnUpdate, IDisposable
         {
             _hour += 12;
         }
-        if (_hour == 24 || _hour == 12)
+        if (_hour == 24)
         {
             _hour = 0;
         }
@@ -129,13 +126,12 @@ public class AlarmTimeController : IOnController, IOnUpdate, IDisposable
             _minute = 0;
         }
 
-        _hourAlarmText.text = _hour.ToString("D2") + ':';
-        _minuteAlarmText.text = _minute.ToString("D2");
-        
-        if (_setAlarm && _timeController.HourInt == _hour && _timeController.MinuteInt == _minute)
-        {
-            Debug.Log("Дилиньк");
-        }
+        _alarmText.text = $"{_hour:d2} : {_minute:d2}";
+       
+
+        if (!_setAlarm || _timeController.HourInt != _hour || _timeController.MinuteInt != _minute) return;
+        Camera.main.GetComponent<AudioSource>().Play();
+        Debug.Log("Дилиньк");
     }
     
     public void Dispose()

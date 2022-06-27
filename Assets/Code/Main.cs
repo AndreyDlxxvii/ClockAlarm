@@ -6,8 +6,7 @@ public class Main : MonoBehaviour
 {
     [SerializeField] private TMP_Text _timeText;
     [SerializeField] private TMP_Text _alarmStatus;
-    [SerializeField] private TMP_Text _hourAlarmText;
-    [SerializeField] private TMP_Text _minuteAlarmText;
+    [SerializeField] private TMP_Text _alarmText;
     [SerializeField] private TMP_InputField _inputField;
     
     [SerializeField] private Button _buttonShowAlarm;
@@ -27,7 +26,7 @@ public class Main : MonoBehaviour
     {
         _controllers = new Controller();
         new GameInit(_controllers, _timeText, _buttonShowAlarm, _hour, _minute, _second,
-            _hourAlarm, _minuteAlarm, _hourAlarmText, _minuteAlarmText, _buttonSetAlarm, 
+            _hourAlarm, _minuteAlarm, _alarmText, _buttonSetAlarm, 
             _buttonSetPmAm, _inputField, _alarmStatus);
         _controllers.OnStart();
     }
