@@ -5,15 +5,22 @@ using UnityEngine.UI;
 
 public class TimeController : IOnController, IOnUpdate, IDisposable
 {
-    public int[] Time => _time;
+    public int HourInt => _hourInt;
+
+    public int MinuteInt => _minuteInt;
+
+    //public int SecondInt => _secondInt;
 
     private readonly Transform _hour;
     private readonly Transform _minute;
     private readonly Transform _second;
     private readonly TMP_Text _timeText;
+    private int _hourInt;
+    private int _minuteInt;
+    private int _secondInt;
     private readonly GetTimeFromServer _getTimeFromServer;
 
-    private int[] _time;
+    private TimeSpan _time;
     private string _timeString;
     private readonly MyCoroutine _coroutine;
     private bool _flag = true;
@@ -27,7 +34,7 @@ public class TimeController : IOnController, IOnUpdate, IDisposable
         _second = second;
         _timeText = tmpText;
         _getTimeFromServer = getTimeFromServer;
-        _time = _getTimeFromServer.GetTime();
+        UpdateTime();
         TimerCount();
         _coroutine = new MyCoroutine();
         _coroutine.StartMyCoroutine(1f);
@@ -38,30 +45,30 @@ public class TimeController : IOnController, IOnUpdate, IDisposable
     }
     private void TimerCount()
     {
-        if (_time[2] < 59)
+        if (_secondInt < 59)
         {
-            _time[2]++;
+            _secondInt++;
         }
         else
         {
-            _time[2] = 0;
-            _time[1]++;
-            if (_time[1] == 60)
+            _secondInt = 0;
+            _minuteInt++;
+            if (_minuteInt == 60)
             {
-                _time = _getTimeFromServer.GetTime();
-                _time[1] = 0;
-                _time[0]++;
+                UpdateTime();
+                _minuteInt = 0;
+                _hourInt++;
             }
 
-            if (_time[0] == 24)
+            if (_hourInt == 24)
             {
-                _time[0] = 0;
+                _hourInt = 0;
             }
         }
-        _hour.rotation = Quaternion.Euler(0f, 0f,-_time[0] * 30f + -_time[1]/2f);
-        _minute.rotation = Quaternion.Euler(0f, 0f,-_time[1] * 6f + -_time[2]/12f);
-        _second.rotation = Quaternion.Euler(0f, 0f,-_time[2] * 6f);
-        _timeString = $"{_time[0]:D2}:{_time[1]:D2}:{_time[2]:D2}";
+        _hour.rotation = Quaternion.Euler(0f, 0f,-_hourInt * 30f + -_minuteInt/2f);
+        _minute.rotation = Quaternion.Euler(0f, 0f,-_minuteInt * 6f + -_secondInt/12f);
+        _second.rotation = Quaternion.Euler(0f, 0f,-_secondInt * 6f);
+        _timeString = $"{_hourInt:D2}:{_minuteInt:D2}:{_secondInt:D2}";
         _timeText.text = _timeString;
     }
 
@@ -83,11 +90,19 @@ public class TimeController : IOnController, IOnUpdate, IDisposable
         _second.gameObject.SetActive(_flag);
     }
 
-    public void OnUpdate(float deltaTime)
+    public void OnUpdate()
     {
         float ratio = (float) Screen.height / Screen.width;
         float ortSize = Screen.width * ratio / 200f;
         Camera.main.orthographicSize = ortSize;
+    }
+
+    private void UpdateTime()
+    {
+        _time = _getTimeFromServer.TryGetTimeFromServer();
+        _hourInt = _time.Hours;
+        _minuteInt = _time.Minutes;
+        _secondInt = _time.Seconds;
     }
     public void Dispose()
     {

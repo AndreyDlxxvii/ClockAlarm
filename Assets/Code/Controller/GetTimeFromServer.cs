@@ -1,38 +1,39 @@
 using System;
-using System.IO;
-using System.Net.Sockets;
+using System.Globalization;
+using System.Net;
 
 public class GetTimeFromServer
 {
-    public int[] GetTime()
-    {
-        int[] time = new int[3];    
-        var utcDateTimeString = AskServer("time-d.nist.gov");
-        var utcDateTimeStringSecond = AskServer("time.nist.gov");
-        for (int i = 0; i < utcDateTimeString.Length; i++)
-        {
-            time[i] = (utcDateTimeString[i] + utcDateTimeStringSecond[i]) / 2;
-        }
-        return time;
-    }
+    private TimeSpan _dateTime;
 
-    private int [] AskServer(string host)
+    private string[] _servers =
     {
-        int[] time = new int[3];
-        var utcOffset = TimeZoneInfo.Local.BaseUtcOffset.Hours;
-        var client = new TcpClient(host, 13);
-        var streamReader = new StreamReader(client.GetStream());
-        var response = streamReader.ReadToEnd();
-        var utcDateTimeString = response.Substring(16, 8);
-        string[] words = utcDateTimeString.Split(':');
-        for (int i = 0; i < words.Length; i++)
+        "http://www.ya.ru",
+        "http://www.google.com",
+        "http://www.rambler.ru",
+        "http://www.rbc.ru"
+    };
+
+    public TimeSpan TryGetTimeFromServer()
+    {
+        foreach (var ell in _servers)
         {
-            time[i] = int.Parse(words[i]);
-            if (i == 0)
+            try
             {
-                time[i] += utcOffset;
+                using var response = WebRequest.Create(ell).GetResponse();
+                var time = DateTime.ParseExact(response.Headers["date"],
+                    "ddd, dd MMM yyyy HH:mm:ss 'GMT'",
+                    CultureInfo.InvariantCulture.DateTimeFormat,
+                    DateTimeStyles.AssumeUniversal);
+                _dateTime = time - time.Date;
+                return _dateTime;
+            }
+            catch
+            {
+                // ignored
             }
         }
-        return time;
+
+        return _dateTime;
     }
 }

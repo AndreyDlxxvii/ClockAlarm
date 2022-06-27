@@ -33,13 +33,13 @@ public class Controller
         }
     }
 
-    public void OnUpdate(float deltaTime)
+    public void OnUpdate()
     {
         foreach (var ell in _onUpdates)
         {
             if (ell.HasMethod(UpdateMethod))
             {
-                ell.OnUpdate(deltaTime);
+                ell.OnUpdate();
             }
         }
     }

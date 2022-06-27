@@ -34,6 +34,6 @@ public class Main : MonoBehaviour
 
     private void Update()
     {
-        _controllers.OnUpdate(Time.deltaTime);
+        _controllers.OnUpdate();
     }
 }

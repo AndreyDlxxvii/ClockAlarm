@@ -112,7 +112,7 @@ public class AlarmTimeController : IOnController, IOnUpdate, IDisposable
         
     }
     
-    public void OnUpdate(float deltaTime)
+    public void OnUpdate()
     {
         _hour = (int)Mathf.Round(12 - _hourAlarm.rotation.eulerAngles.z / 30f);
         _minute = (int) Mathf.Round(60 - _minuteAlarm.rotation.eulerAngles.z / 6f);
@@ -132,7 +132,7 @@ public class AlarmTimeController : IOnController, IOnUpdate, IDisposable
         _hourAlarmText.text = _hour.ToString("D2") + ':';
         _minuteAlarmText.text = _minute.ToString("D2");
         
-        if (_setAlarm && _timeController.Time[0] == _hour && _timeController.Time[1] == _minute)
+        if (_setAlarm && _timeController.HourInt == _hour && _timeController.MinuteInt == _minute)
         {
             Debug.Log("Дилиньк");
         }
